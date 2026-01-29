@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Custom\Hr\Card\Placement;
 
 class SmartProcessCard

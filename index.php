@@ -3,6 +3,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 $arClasses = [
     "custom_hr_card" => "install/index.php",
+    "Custom\\Hr\\Card\\Placement\\SmartProcessCard" => "lib/Placement/SmartProcessCard.php",
 ];
 
 \Bitrix\Main\Loader::registerAutoLoadClasses(
