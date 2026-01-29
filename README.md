@@ -5,7 +5,7 @@
 ```
 
 ## Репозиторий проекта
-GitHub: https://github.com/uldalex/custom.hr.card
+GitHub: https://gitlab.qwell.lo/web/custom.hr.card
 
 ```
 
