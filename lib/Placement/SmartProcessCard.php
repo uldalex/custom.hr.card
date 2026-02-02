@@ -1,4 +1,5 @@
 <?php
+
 namespace Custom\Hr\Card\Placement;
 
 class SmartProcessCard
@@ -18,16 +19,29 @@ class SmartProcessCard
             }
         }
 
-        $entityId = $options['ENTITY_ID'] ?? ($_REQUEST['ENTITY_ID'] ?? null);
+        // В твоем случае реально прилетает {"ID":"251"}
+        $entityId = $options['ID'] ?? ($_REQUEST['ENTITY_ID'] ?? null);
+
+        // ENTITY_TYPE_ID в этом placement не приходит
         $entityTypeId = $options['ENTITY_TYPE_ID'] ?? ($_REQUEST['ENTITY_TYPE_ID'] ?? null);
 
         header('Content-Type: text/html; charset=UTF-8');
 
         echo '<div style="padding:16px;font-family:Arial,sans-serif">';
         echo '<h2 style="margin:0 0 12px 0">Это кастомная карточка</h2>';
-        echo '<div style="margin:0 0 8px 0">Placement жив ✅</div>';
+        echo '<div style="margin:0 0 8px 0">Placement жив</div>';
         echo '<div style="margin:0 0 4px 0"><b>ENTITY_TYPE_ID:</b> ' . htmlspecialchars((string)$entityTypeId) . '</div>';
         echo '<div style="margin:0 0 4px 0"><b>ENTITY_ID:</b> ' . htmlspecialchars((string)$entityId) . '</div>';
+
+        // Root-узел, откуда JS стартует и берет dataset
+        echo '<div id="custom-hr-card-root"'
+            . ' data-entity-type-id="' . htmlspecialchars((string)$entityTypeId) . '"'
+            . ' data-entity-id="' . htmlspecialchars((string)$entityId) . '"'
+            . '></div>';
+
+        // ВАЖНО: прямое подключение JS (Asset::addJs тут не работает)
+        echo "<script src='/local/js/custom.hr.card/card.js?v=" . time() . "'></script>";
+
         echo '</div>';
     }
 }

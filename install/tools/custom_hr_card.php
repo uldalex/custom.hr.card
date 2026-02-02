@@ -105,7 +105,7 @@ $placementToolbar = 'CRM_DYNAMIC_1032_DETAIL_TOOLBAR';
         {
           PLACEMENT: placementCode,
           HANDLER: '<?= htmlspecialchars($placementHandlerUrl, ENT_QUOTES) ?>',
-          TITLE: 'Custom HR Card'
+          TITLE: 'Карточка HR'
           // OPTIONS пока не используем
         },
         function (res) {

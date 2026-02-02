@@ -1,11 +1,24 @@
-<?
+<?php
 
 namespace Custom\Hr\Card\Controller;
 
-class CardController
+use Bitrix\Main\Engine\Controller;
+use Custom\Hr\Card\Service\SmartProcessService;
+
+class CardController extends Controller
 {
-    public static function ping(): string
+    public function getItemDataAction($entityTypeId = null, $entityId = null): array
     {
-        return 'pong';
+        $service = new SmartProcessService();
+        return $service->getItemData($entityTypeId, $entityId);
+    }
+
+    public function configureActions(): array
+    {
+        return [
+            'getItemData' => [
+                'prefilters' => [],
+            ],
+        ];
     }
 }
