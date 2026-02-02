@@ -37,16 +37,16 @@ class custom_hr_card extends CModule
     public function DoInstall()
     {
         ModuleManager::registerModule($this->MODULE_ID);
-
         $this->installTools();
+        $this->installAssets();
         $this->installAdminFiles();
-        
-    }
+     }
 
     public function DoUninstall()
     {
         $this->uninstallAdminFiles();
         $this->uninstallTools();
+        $this->uninstallAssets();
 
         ModuleManager::unRegisterModule($this->MODULE_ID);
     }
@@ -67,6 +67,7 @@ class custom_hr_card extends CModule
         $files = [
             'custom_hr_card.php',
             'custom_hr_card_placement.php',
+            'custom_hr_card_ajax.php',
         ];
 
         foreach ($files as $fileName) {
@@ -87,6 +88,7 @@ class custom_hr_card extends CModule
         $files = [
             $dstDir . '/custom_hr_card.php',
             $dstDir . '/custom_hr_card_placement.php',
+            $dstDir . '/custom_hr_card_ajax.php',
         ];
 
         foreach ($files as $path) {
@@ -156,5 +158,30 @@ class custom_hr_card extends CModule
                 unlink($dst);
             }
         }
+    }
+    private function installAssets(): void
+    {
+        $moduleDir = $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/' . $this->MODULE_ID . '/install/assets';
+
+        $jsSrc = $moduleDir . '/js';
+        $cssSrc = $moduleDir . '/css';
+
+        $jsDst = $_SERVER['DOCUMENT_ROOT'] . '/local/js/custom.hr.card';
+        $cssDst = $_SERVER['DOCUMENT_ROOT'] . '/local/css/custom.hr.card';
+
+        if (is_dir($jsSrc)) {
+            Directory::createDirectory($jsDst);
+            CopyDirFiles($jsSrc, $jsDst, true, true);
+        }
+
+        if (is_dir($cssSrc)) {
+            Directory::createDirectory($cssDst);
+            CopyDirFiles($cssSrc, $cssDst, true, true);
+        }
+    }
+    private function uninstallAssets(): void
+    {
+        DeleteDirFilesEx('/local/js/custom.hr.card');
+        DeleteDirFilesEx('/local/css/custom.hr.card');
     }
 }

@@ -10,21 +10,25 @@ if (!Loader::includeModule('custom.hr.card'))
 {
     echo json_encode([
         'status' => 'error',
-        'data' => null,
-        'errors' => [
-            ['message' => 'module_not_loaded']
-        ],
+        'errors' => [['message' => 'module_not_loaded']],
     ]);
     exit;
 }
 
-$entityTypeId = $_POST['entityTypeId'] ?? null;
-$entityId = $_POST['entityId'] ?? null;
+$action = $_POST['action'] ?? null;
 
 try
 {
     $controller = new \Custom\Hr\Card\Controller\CardController();
-    $data = $controller->getItemDataAction($entityTypeId, $entityId);
+
+    if ($action === 'create')
+    {
+        $data = $controller->createItemTestAction();
+    }
+    else
+    {
+        throw new \RuntimeException('Unknown action');
+    }
 
     echo json_encode([
         'status' => 'success',
@@ -36,9 +40,6 @@ catch (\Throwable $e)
 {
     echo json_encode([
         'status' => 'error',
-        'data' => null,
-        'errors' => [
-            ['message' => $e->getMessage()]
-        ],
+        'errors' => [['message' => $e->getMessage()]],
     ]);
 }

@@ -21,4 +21,18 @@ class CardController extends Controller
             ],
         ];
     }
+    public function createItemTestAction(): array
+{
+    $service = new SmartProcessService();
+
+    $newId = $service->createItem([
+        'TITLE' => 'Новая заявка',
+    ]);
+
+    return [
+        'ok' => true,
+        'id' => $newId,
+    ];
+}
+    
 }

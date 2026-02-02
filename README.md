@@ -13,77 +13,60 @@ GitHub: https://gitlab.qwell.lo/web/custom.hr.card
 
 ```
 custom.hr.card/
-├── index.php                # Точка подключения модуля (autoload, без логики)
+├── index.php                    # Entry модуля (autoload, без бизнес-логики)
+├── .settings.php                # D7 controllers config (namespace для Engine controllers)
 ├── install/
-│   ├── index.php            # Установка / удаление (только register / unregister)
-│   └── version.php          # Версия модуля
+│   ├── index.php                # Install/Uninstall модуля
+│   ├── version.php              # Версия модуля
+│   ├── tools/                   # Публичные entrypoints модуля (копируются в /local/tools)
+│   │   ├── custom_hr_card.php               # Handler приложения (bind / служебные действия)
+│   │   ├── custom_hr_card_placement.php     # Placement handler вкладки (контент iframe)
+│   │   └── custom_hr_card_ajax.php          # AJAX proxy: UI → Controller → Service
+│   ├── admin/                   # Прокси-файлы (копируются в /bitrix/admin)
+│   │   ├── custom_hr_card_fields.php
+│   │   └── custom_hr_card_status.php
+│   └── assets/                  # Статические ассеты (копируются в /local/js|css)
+│       ├── js/card.js            # → /local/js/custom.hr.card/card.js
+│       └── css/card.css          # → /local/css/custom.hr.card/card.css
+│
+├── admin/                       # Реальные страницы админки модуля
+│   └── fields.php               # Admin UI (минимум логики) (прокси в /bitrix/admin)
+|   └── status.php               # страница диагностики (прокси в /bitrix/admin)
 │
 ├── lib/
 │   ├── Controller/
-│   │   └── CardController.php        # Тонкий контроллер (входные точки)
-│   │
+│   │   └── CardController.php    # Тонкий контроллер: входные точки, без бизнес-логики
 │   ├── Service/
-│   │   ├── SmartProcessService.php   # Работа со смарт-процессами
-│   │   ├── DiskService.php            # Файлы, диск, загрузки
-│   │   └── CandidateFactory.php       # Сборка DTO/моделей
-│   │
+│   │   ├── SmartProcessService.php
+│   │   ├── DiskService.php
+│   │   └── CandidateFactory.php
 │   ├── Placement/
-│   │   └── SmartProcessCard.php       # Логика REST/placement
-│   │
+│   │   └── SmartProcessCard.php  # Рендер вкладки placement (iframe) + подключение ассетов
 │   └── Config/
-│       └── FieldMap.php               # Карта полей, константы
+│       └── FieldMap.php          # Маппинг полей (ID не в JS)
 │
-├── admin/
-│   └── fields.php            # Admin UI (минимум логики)
-│
-├── assets/
-│   ├── js/
-│   │   └── card.js           # Клиентская логика карточки
-│   └── css/
-│       └── card.css
-│
-└── lang/
-    └── ru/
-        └── *.php             # Локализация
+└── lang/ru/*.php                 # Локализация
 ```
 
 ---
 
-## Базовые принципы 
+## Изменения в архитектуре
+### ADR-001. Почему используем /local/tools/custom_hr_card_ajax.php, а не BX.ajax.runAction
 
-### 1. install/ — нередактируемая зона
-- Никакой бизнес-логики
-- Никаких запросов в БД
-- Только register / unregister
-- Никаких REST, CRM, Disk
+Изначально планировалось работать с backend через стандартный D7-механизм BX.ajax.runAction.
+На практике выяснилось, что в контексте вкладки (placement), которая рендерится внутри iframe, этот путь нестабилен: объект BX может быть недоступен, а роутинг D7-контроллеров (.settings.php) не всегда корректно резолвится.
 
-### 2. index.php модуля
-- Только autoload
-- Никакого выполнения кода
-- Никаких include логики
+Чтобы не строить архитектуру на предположениях и не завязываться на особенности окружения iframe, было принято решение ввести отдельную публичную AJAX-точку входа в /local/tools/custom_hr_card_ajax.php.
 
-### 3. lib/
-- Вся логика  здесь
-- Классы маленькие, с одной ответственностью
-- Контроллеры не содержат бизнес-логики
+Этот файл выполняет роль тонкого proxy:
 
-### 4. admin/
-- Только UI
-- Никаких прямых запросов к CRM
-- Всё через Service-слой
+принимает AJAX-запросы от UI;
 
-### 5. assets/
-- JS и CSS не знают о Bitrix API напрямую (не забыть перенести вебхуки из существующего скрипта в серверную часть)
-- Общение только через AJAX / Controller
+подключает модуль;
 
----
+передаёт управление в CardController, далее в соответствующие сервисы.
 
-## Правила разработки
-
--  Не писать код «на потом»    (или писать. но не здесь. делаем чисто)
--  Не смешивать слои (UI ↔ бизнес)
-
----
+Бизнес-логики в proxy нет.
 
 ## Этапы развития
 
